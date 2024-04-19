@@ -194,6 +194,7 @@ def train_and_save_model(
     gradient_checkpointing = model_config.gradient_checkpointing
     custom_kwargs = model_config.custom_kwargs or {}
 
+    # resume from checkpoint
     def maybe_load_model(model):
         if os.path.exists(os.path.join(save_path, "results.pkl")) and not force_retrain:
             print("loading from", save_path)

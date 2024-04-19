@@ -2,3 +2,5 @@ dump
 *.pyc
 *.swp
 *.swo
+results/*
+results_archive/*
