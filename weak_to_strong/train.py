@@ -10,6 +10,7 @@ import numpy as np
 import torch
 import torch_optimizer as toptim
 from transformers.modeling_utils import load_sharded_checkpoint
+from safetensors.torch import load_model
 
 import weak_to_strong.logger as logger
 from weak_to_strong.common import clear_mem
@@ -196,19 +197,22 @@ def train_and_save_model(
 
     # resume from checkpoint
     def maybe_load_model(model):
+        print("Save path: {}".format(save_path))
         if os.path.exists(os.path.join(save_path, "results.pkl")) and not force_retrain:
             print("loading from", save_path)
-            checkpoint_path = os.path.join(save_path, "pytorch_model.bin")
+            checkpoint_path = os.path.join(save_path, "model.safetensors")
+            # checkpoint_path = os.path.join(save_path, "pytorch_model.bin")
             if not os.path.exists(checkpoint_path):
                 # Assume this means we have a sharded checkpoint, and load it appropriately
                 load_sharded_checkpoint(model, checkpoint_path)
             else:
-                state_dict = torch.load(os.path.join(save_path, "pytorch_model.bin"))
-                state_dict = {
-                    k.replace("transformer.module", "transformer"): v
-                    for (k, v) in state_dict.items()
-                }
-                custom_kwargs["state_dict"] = state_dict
+                load_model(model, checkpoint_path)
+                # state_dict = torch.load(os.path.join(save_path, "pytorch_model.bin"))
+                # state_dict = {
+                #     k.replace("transformer.module", "transformer"): v
+                #     for (k, v) in state_dict.items()
+                # }
+                # custom_kwargs["state_dict"] = state_dict
             return True
         return False
 
